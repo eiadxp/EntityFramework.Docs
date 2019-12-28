@@ -24,7 +24,10 @@ static MigrationBuilder CreateUser(
     this MigrationBuilder migrationBuilder,
     string name,
     string password)
-    => migrationBuilder.Sql($"CREATE USER {name} WITH PASSWORD '{password}';");
+    { 
+        migrationBuilder.Sql($"CREATE USER {name} WITH PASSWORD '{password}';");
+        return migrationBuilder;
+    }
 ```
 
 If your migrations need to support multiple database providers, you can use the `MigrationBuilder.ActiveProvider` property. Here's an example supporting both Microsoft SQL Server and PostgreSQL.
@@ -38,12 +41,13 @@ static MigrationBuilder CreateUser(
     switch (migrationBuilder.ActiveProvider)
     {
         case "Npgsql.EntityFrameworkCore.PostgreSQL":
-            return migrationBuilder
+            migrationBuilder
                 .Sql($"CREATE USER {name} WITH PASSWORD '{password}';");
-
+            break;
         case "Microsoft.EntityFrameworkCore.SqlServer":
-            return migrationBuilder
+            migrationBuilder
                 .Sql($"CREATE USER {name} WITH PASSWORD = '{password}';");
+            break;
     }
 
     return migrationBuilder;
